@@ -41,3 +41,5 @@ dist
 yarn.lock
 
 manga/**/*
+
+package-lock.json

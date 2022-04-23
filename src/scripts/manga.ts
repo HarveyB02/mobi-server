@@ -10,21 +10,29 @@ const basePath = path.resolve(__dirname, '../..')
 const scraper = new MangaSee()
 const mangaDirPath = path.join(basePath, 'manga')
 
-const libraryCovers = () => {
-	const covers: {coverUrl: string, mangaUrl: string}[] = []
+const getMangaCache = (mangaFolderName: string) => {
+	mangaFolderName = sanitize(mangaFolderName)
+
+	let cachePath = path.join(mangaDirPath, mangaFolderName, 'cache.json')
+	if (!fs.existsSync(cachePath)) return undefined
+
+	const cache = JSON.parse(fs.readFileSync(cachePath).toString())
+
+	return cache
+}
+
+const getLibraryCache = () => {
+	const data: {coverUrl: string, mangaUrl: string}[] = []
 
 	if (!fs.existsSync(mangaDirPath)) fs.mkdirSync(mangaDirPath)
 	const mangaFolders = fs.readdirSync(mangaDirPath)
 	
 	for (let mangaFolder of mangaFolders) {
-		const cachePath = path.join(mangaDirPath, mangaFolder, 'cache.json')
-		if (!fs.existsSync(cachePath)) continue
-		const cache = JSON.parse(fs.readFileSync(cachePath).toString())
-
-		covers.push(cache)
+		const cache = getMangaCache(mangaFolder)
+		if (cache) data.push(cache)
 	}
 
-	return covers
+	return data
 }
 
 const search = async (query: string) => {
@@ -36,7 +44,7 @@ const fetchMeta = async (query: string) => {
 }
 
 const download = async (url: string, startChap: number) => {
-	let { chapters , coverImage } = await scraper.getMangaMeta(url)
+	let { chapters , coverImage, title } = await scraper.getMangaMeta(url)
 	chapters = chapters.reverse()
 
 	const mangaPath = path.join(mangaDirPath, sanitize(url))
@@ -45,36 +53,105 @@ const download = async (url: string, startChap: number) => {
 	fs.writeFileSync(path.join(mangaPath, 'cache.json'),
 		JSON.stringify({
 			coverUrl: coverImage,
-			mangaUrl: url
+			mangaUrl: url,
+			title: title.main
 		})
 	)
 
 	for (let i = startChap - 1; i < chapters.length && i < startChap + 49; i++) {
 		const chapter = chapters[i]
 
-		console.log(chapter.name)
+		console.log(`${chapter.name} (#${i + 1}) (${Math.round((i / 50) * 100)}%)`)
 
-		const chapterPath = path.join(mangaPath, sanitize(chapter.name))
-		if (!fs.existsSync(chapterPath)) fs.mkdirSync(chapterPath)
+		const chapterPath = path.join(mangaPath, 'chapters', startChap.toString(), sanitize(chapter.name))
+		if (!fs.existsSync(chapterPath)) fs.mkdirSync(chapterPath, { recursive: true })
 
 		const pages = await scraper.getPages(chapter.url)
-		for (let page of pages) {
-			const filename = page.replace(/^.*\//g, '')
-			if (fs.existsSync(path.join(chapterPath, filename))) continue
-			console.log(`    ${filename}`)
+		for (let j = 0; j < pages.length; j++) {
+			const page = pages[j]
 
-			await dl.image({
-				url: page,
-				dest: chapterPath
-			})
+			const filename = page.replace(/^.*\//g, '')
+			console.log(`    ${filename} (${Math.round((j / pages.length) * 100)}%)`)
+
+			if (fs.existsSync(path.join(chapterPath, filename))) continue
+
+			let downloaded = false
+			while (!downloaded) {
+				const downloadImage = () => {
+					return new Promise((resolve, reject) => {
+						dl.image({
+							url: page,
+							dest: chapterPath
+						}).then(resolve, reject)
+						setTimeout(reject, 15000)
+					})
+				}
+				
+				await downloadImage().then(() => {
+					downloaded = true
+				}).catch(() => {
+					console.log('Failed to download image')
+				})
+			}
 		}
 	}
+
+	console.log('Download complete')
 }
 
-const convert = async (url: string) => {
+const convert = async (url: string, startChap: number) => {
 	const mangaPath = path.join(mangaDirPath, sanitize(url))
-	const outputPath = path.join(mangaPath, 'mobis')
-	await kcc.convert(mangaPath, outputPath)
+	const data = getMangaCache(sanitize(url))
+
+	if (!mangaPath || !data) return
+
+	const chapterPath = path.join(mangaPath, 'chapters', startChap.toString())
+	const mobiPath = path.join(mangaPath, 'mobis')
+	if (!fs.existsSync(chapterPath)) fs.mkdirSync(chapterPath)
+	if (!fs.existsSync(mobiPath)) fs.mkdirSync(mobiPath)
+
+	const mobiFileName = `${data.title} ${startChap}`
+
+	await kcc.convert(chapterPath, mobiPath, mobiFileName)
 }
 
-export default { libraryCovers, search, fetchMeta, download, convert }
+const read = (url: string, startChap: number) => {
+	const mobiPath = path.join(mangaDirPath, sanitize(url), 'mobis', `${startChap}.mobi`)
+	if (!fs.existsSync(mobiPath)) return undefined
+	return fs.createReadStream(mobiPath)
+}
+
+const getState = async (url: string, chapCount: number) => {
+	const state: {
+		downloaded: boolean,
+		converted: boolean
+	}[] = []
+
+	for (let startChap = 1; startChap < chapCount; startChap += 50) {
+		let converted = false, downloaded = false
+
+		const mangaFolder = path.join(mangaDirPath, sanitize(url))
+		const chapterFolder = path.join(mangaFolder, 'chapters', startChap.toString())
+		const mobiFilePath = path.join(mangaFolder, 'mobis', `${startChap}.mobi`)
+
+		converted = fs.existsSync(mobiFilePath)
+
+		if (fs.existsSync(chapterFolder)) {
+			const dlChapCount = fs.readdirSync(chapterFolder).length
+			if (dlChapCount >= 50) {
+				downloaded = true
+			} else {
+				const chapCount = (await fetchMeta(url)).chapters.length - startChap + 1
+				if (dlChapCount >= chapCount) {
+					downloaded = true
+				}
+			}
+		}
+
+		state.push({ downloaded, converted })
+	}
+
+	return state
+}
+
+export default { getMangaCache, getLibraryCache, search, fetchMeta, download, convert, read, getState }

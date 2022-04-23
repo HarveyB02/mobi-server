@@ -2,15 +2,15 @@ import { spawn } from 'child_process'
 import dotenv from 'dotenv'
 dotenv.config()
 
-const convert = (inputPath: string, outputPath: string) => {
+const convert = (inputPath: string, outputFile: string, title: string) => {
 	const c2e = spawn('kcc-c2e', [
 		'-u',
 		'-m',
-		'-b', '1',
 		'-f', 'MOBI',
+		'-t', title,
 		'-p', process.env.DEVICE || 'KPW',
-		'-o', inputPath,
-		outputPath	
+		'-o', outputFile,
+		inputPath	
 	])
 
 	return new Promise((resolve, reject) => {
@@ -23,6 +23,7 @@ const convert = (inputPath: string, outputPath: string) => {
 		})
 
 		c2e.on('close', (code: number) => {
+			console.log('Conversion complete')
 			resolve(code)
 		})
 	})

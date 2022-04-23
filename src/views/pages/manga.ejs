@@ -39,18 +39,21 @@
 			<tbody>
 				<% for (let startChap = 1; startChap < mangaMeta.chapters.length; startChap += 50) { %>
 					<% let endChap = startChap + 49 > mangaMeta.chapters.length ? mangaMeta.chapters.length : startChap + 49 %>
+					<% let readClass = state[(startChap-1)/50].converted ? 'btn-secondary' : 'btn-outline-secondary disabled' %>
+					<% let convClass = state[(startChap-1)/50].downloaded && !state[(startChap-1)/50].converted ? 'btn-secondary' : 'btn-outline-secondary disabled' %>
+					<% let downClass = !state[(startChap-1)/50].converted && !state[(startChap-1)/50].downloaded ? 'btn-secondary' : 'btn-outline-secondary disabled' %>
 					<tr>
 						<td class="chap-col" style="padding-left: 0rem; vertical-align: middle;">
 							Chapters <%= startChap %> to <%= endChap %>
 						</td>
 						<td class="chap-col">
-							<button class="btn btn-secondary" onclick="window.location = '/download/<%= encodeURIComponent(url) %>/<%= startChap %>'">Download</button>
+							<button class="btn <%= downClass %>" onclick="window.location = '/download/<%= encodeURIComponent(url) %>/<%= startChap %>'">Download</button>
 						</td>
 						<td class="chap-col">
-							<button class="btn btn-outline-secondary disabled">Convert</button>
+							<button class="btn <%= convClass %>" onclick="window.location = '/convert/<%= encodeURIComponent(url) %>/<%= startChap %>'">Convert</button>
 						</td>
 						<td class="chap-col">
-							<button class="btn btn-outline-secondary disabled">Read</button>
+							<button class="btn <%= readClass %>" onclick="window.location = '/read/<%= encodeURIComponent(url) %>/<%= startChap %>'">Read</button>
 						</td>
 					</tr>
 				<% } %>

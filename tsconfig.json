@@ -7,8 +7,5 @@
 		"forceConsistentCasingInFileNames": true,
 		"strict": true,
 		"skipLibCheck": true
-	},
-	"filesGlob": [
-		"src/types/*.d.ts"
-	]
+	}
 }

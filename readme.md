@@ -4,6 +4,11 @@
 
 A small hobby project - runs a web server accessible from the kindle's experimental web browser where you can download manga from the internet, convert to MOBI format and add them to your kindle's library without ever needing to use a PC.
 
+## Dependencies
+
+- [Kindle Comic Converter](https://github.com/ciromattia/kcc) (PyPI)
+- Kindlegen - [linux](https://ia801700.us.archive.org/14/items/kindlegen/kindlegen), [windows](https://web.archive.org/web/20201015222246mp_/https://kindlegen.s3.amazonaws.com/kindlegen_win32_v2_9.zip)
+
 ## Run Locally
 
 Clone the project
