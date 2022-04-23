@@ -1,0 +1,74 @@
+<head>
+	<style>
+		table {
+			width: 100%;
+		}
+		th, td {
+			font-size: 1rem;
+		}
+		th {
+			text-align: left;
+		}
+		ul {
+			columns: 3;
+			-webkit-columns: 3;
+			-moz-columns: 3;
+			padding-left: 0;
+			list-style-type: none;
+		}
+		input, img {
+			margin-right: -1rem;
+		}
+		body > table > tbody > tr > td {
+			padding: 1rem !important;
+		}
+	</style>
+</head>
+
+<table class="table">
+	<tbody>
+		
+		<% for (let manga of mangas) { %>
+			<tr>
+				<td scope="row" style="width: 1%; white-space: nowrap;">
+					<<% if (manga.url) { %>input type="image" <% } else { %>img <% } %> src="<%= manga.coverImage %>" width="400px" <% if (manga.url) { %> onclick="window.location = '/manga/<%= encodeURIComponent(manga.url) %>'" <% } %> >
+					
+				</td>
+				<td> 
+					<table>
+						<tr>
+							<th>Title</th>
+							<td>
+								<%= manga.title.main || manga.title %>
+							</td>
+						</tr>
+						<tr>
+							<th>Status</th>
+							<td style="white-space: nowrap;">
+								<%= manga.status.scan.charAt(0).toUpperCase() + manga.status.scan.slice(1) %>
+							</td>
+						</tr>
+						<tr>
+							<th>Updated</th>
+							<td style="width: 100%">
+								<%= Intl.DateTimeFormat('au').format(manga.updatedAt) %>
+							</td>
+						</tr>
+						<tr>
+							<th>Genres</th>
+							<td>
+								<ul>
+									<% for (let genre of manga.genres) { %>
+										<li>
+											<%= genre %>
+										</li>
+									<% } %>
+								</ul>
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+		<% } %>
+	</tbody>
+</table>

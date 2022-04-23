@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<head>
+	<%- include('../partials/head') %>
+	<style>
+		main {
+			padding: 0rem 1rem 1rem 1rem;
+		}
+		h5 {
+			font-weight: 700;
+			font-size: 1rem;
+		}
+		body > table {
+			margin-bottom: 0rem !important;
+		}
+		td > button {
+			width: 100%;
+		}
+		.chap-col {
+			width: 25%
+		}
+	</style>
+</head>
+
+<body>
+	<header>
+		<%- include('../partials/header') %> 
+	</header>
+
+	<%- include('../partials/mangaTable', { mangas: [mangaMeta] }) %>
+	<main>
+		<h5>Summary</h5>
+		<p>
+			<%= mangaMeta.summary %>
+		</p>
+		<h5>
+			<%= mangaMeta.chapters.length %> Chapters Available
+		</h5>
+		<table class="table">
+			<tbody>
+				<% for (let startChap = 1; startChap < mangaMeta.chapters.length; startChap += 50) { %>
+					<% let endChap = startChap + 49 > mangaMeta.chapters.length ? mangaMeta.chapters.length : startChap + 49 %>
+					<tr>
+						<td class="chap-col" style="padding-left: 0rem; vertical-align: middle;">
+							Chapters <%= startChap %> to <%= endChap %>
+						</td>
+						<td class="chap-col">
+							<button class="btn btn-secondary" onclick="window.location = '/download/<%= encodeURIComponent(url) %>/<%= startChap %>'">Download</button>
+						</td>
+						<td class="chap-col">
+							<button class="btn btn-outline-secondary disabled">Convert</button>
+						</td>
+						<td class="chap-col">
+							<button class="btn btn-outline-secondary disabled">Read</button>
+						</td>
+					</tr>
+				<% } %>
+			</tbody>
+		</table>
+	</main>
+</body>

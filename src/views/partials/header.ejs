@@ -4,8 +4,22 @@
 		<a href="/library" class="nav-item nav-link">library</a>
 		<a href="/processing" class="nav-item nav-link">processing</a>
 	</div>
-	<form class="form-inline my-2 my-lg-0" style="position: absolute; right: 1rem;">
-		<input type="search" class="form-control mr-sm-2" name="name" placeholder="Search for new media" aria-label="Search">
+	<form id="search-form" onsubmit="event.preventDefault()" action="/howdyougethere" class="form-inline my-2 my-lg-0" style="position: absolute; right: 1rem;">
+		<input id="search-input" type="search" class="form-control mr-sm-2" name="name" placeholder="Search for new manga" aria-label="Search">
 		<button type="submit" class="btn btn-secondary my-2 my-sm-0">Search</button>
 	</form>
 </nav>
+
+<script>
+	const searchForm = document.getElementById('search-form')
+	if (searchForm.addEventListener) {
+		searchForm.addEventListener('submit', search, false)
+	} else if (searchForm.attachEvent) {
+		searchForm.attachEvent('onsubmit', search)
+	}
+
+	function search() {
+		const searchInput = document.getElementById('search-input').value
+		window.location.pathname = '/search/' + encodeURIComponent(searchInput)
+	}
+</script>

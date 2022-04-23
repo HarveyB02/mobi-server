@@ -1,15 +1,15 @@
 > :warning: **This project is still under development and not currently functional**: Please check back later!
 
-# MOBI Server
+# Mobi Server
 
-A small hobby project - runs a web server that can download manga/comics from the internet and convert them to MOBI format where a Kindle can directly download the files and start reading - no PC required.
+A small hobby project - runs a web server accessible from the kindle's experimental web browser where you can download manga from the internet, convert to MOBI format and add them to your kindle's library without ever needing to use a PC.
 
 ## Run Locally
 
 Clone the project
 
 ```bash
-  git clone https://github.com/HarveyB02/Manga-Server
+  git clone https://github.com/HarveyB02/mobi-server
 ```
 
 Go to the project directory
@@ -33,11 +33,9 @@ Start the server
 
 #### What sources are supported?
 
-This project utilizes [@EGGaming](https://github.com/EGGaming/)'s [@specify_/mangascraper](https://www.npmjs.com/package/@specify_/mangascraper) package to fetch images and data, as such any sources supported by this package will work.
+Currently only MangaSee
 
-You must select a source to use in the environment variables.
-
-#### How is media converted?
+#### How is manga converted?
 
 This project utilizes Kindle Comic Converter to convert image files into EPUB and MOBI format.
 ## Feedback & Bugs

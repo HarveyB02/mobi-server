@@ -8,11 +8,5 @@
 		<%- include('../partials/header') %> 
 	</header>
 
-	<main style="padding: 1rem">
-		<h1>Hello world :)</h1>
-	</main>
-
-	<footer>
-		<%- include('../partials/footer') %> 
-	</footer>
+	<%- include('../partials/mangaTable', { mangas: searchResults }) %>
 </body>

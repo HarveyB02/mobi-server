@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<head>
+	<%- include('../partials/head') %>
+</head>
+
+<body>
+	<header>
+		<%- include('../partials/header') %> 
+	</header>
+
+	<main>
+		<% for (let x = 0; x < splitCovers.length; x++) { %>
+			<div style="width: 33.33%;">
+				<% for (let y = 0; y < splitCovers[x].length; y++) { %>
+					<input type="image" src="<%= splitCovers[x][y].coverUrl %>" onclick="window.location = '/manga/<%= encodeURIComponent(splitCovers[x][y].mangaUrl) %>'" style="width: 100%">
+				<% } %>
+			</div>
+		<% } %>
+	</main>
+</body>
